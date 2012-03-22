@@ -1,18 +1,11 @@
 # cap deploy:setup
 
-require 'capistrano/ext/multistage'
-
-$:.unshift(File.expand_path('./lib', ENV['rvm_path']))  # Add RVM's lib directory to the load path.
-require "rvm/capistrano"                                # Load RVM's capistrano plugin.
-
 set :stages, %w(beaglebone staging)
 set :default_stage, "beaglebone"
-set :rvm_ruby_string, '1.9.2-p290@sample_blog'               # Or whatever env you want it to run in.
 
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'root')
+require 'bundler/capistrano'
 
-set :rvm_bin_path, "$HOME/.rvm/bin"
-set :rvm_type, :user
+require 'capistrano/ext/multistage'
 
 puts "ENV['rvm_path']"
 puts "rvm_path => #{ENV['rvm_path']}"
@@ -20,7 +13,18 @@ puts "END ENV['rvm_path']"
 
 puts "beg ENV['RAILS_ENV'] ="
 puts ENV['RAILS_ENV']
-puts "end ENV['RAILS_ENV'] ="
+puts "end ENV['RAIL_ENV'] ="
+
+$:.unshift(File.expand_path('./lib', ENV['rvm_path']))  # Add RVM's lib directory to the load path.
+
+require "rvm/capistrano"                                # Load RVM's capistrano plugin.
+
+set :rvm_ruby_string, '1.9.2-p290@test_deploy'               # Or whatever env you want it to run in.
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'root')
+
+set :rvm_bin_path, "$HOME/.rvm/bin"
+set :rvm_type, :user
 
 =begin
 NOTE:  after "cap deploy:setup" you must ssh onto the server and manually create the 
