@@ -1,0 +1,24 @@
+Billys-MacBook-Pro ~/Projects/test_deploy: cap deploy:setup
+ENV['rvm_path']
+rvm_path => /Volumes/MainHD/Users/billy/.rvm
+END ENV['rvm_path']
+beg ENV['RAILS_ENV'] =
+
+end ENV['RAILS_ENV'] =
+    triggering load callbacks
+  * executing `beaglebone'
+    triggering start callbacks for `deploy:setup'
+  * executing `multistage:ensure'
+  * executing `deploy:setup'
+  * executing "mkdir -p /var/www/vhosts/test_deploy.semaphoremobile.com /var/www/vhosts/test_deploy.semaphoremobile.com/releases /var/www/vhosts/test_deploy.semaphoremobile.com/shared /var/www/vhosts/test_deploy.semaphoremobile.com/shared/system /var/www/vhosts/test_deploy.semaphoremobile.com/shared/log /var/www/vhosts/test_deploy.semaphoremobile.com/shared/pids"
+    servers: ["10.0.1.160"]
+Password: 
+    [10.0.1.160] executing command
+    [10.0.1.160] rvm_path=$HOME/.rvm/ $HOME/.rvm/bin/rvm-shell '1.9.2-p290@sample_blog' -c 'mkdir -p /var/www/vhosts/test_deploy.semaphoremobile.com /var/www/vhosts/test_deploy.semaphoremobile.com/releases /var/www/vhosts/test_deploy.semaphoremobile.com/shared /var/www/vhosts/test_deploy.semaphoremobile.com/shared/system /var/www/vhosts/test_deploy.semaphoremobile.com/shared/log /var/www/vhosts/test_deploy.semaphoremobile.com/shared/pids'
+    command finished in 1826ms
+  * executing "chmod g+w /var/www/vhosts/test_deploy.semaphoremobile.com /var/www/vhosts/test_deploy.semaphoremobile.com/releases /var/www/vhosts/test_deploy.semaphoremobile.com/shared /var/www/vhosts/test_deploy.semaphoremobile.com/shared/system /var/www/vhosts/test_deploy.semaphoremobile.com/shared/log /var/www/vhosts/test_deploy.semaphoremobile.com/shared/pids"
+    servers: ["10.0.1.160"]
+    [10.0.1.160] executing command
+    [10.0.1.160] rvm_path=$HOME/.rvm/ $HOME/.rvm/bin/rvm-shell '1.9.2-p290@sample_blog' -c 'chmod g+w /var/www/vhosts/test_deploy.semaphoremobile.com /var/www/vhosts/test_deploy.semaphoremobile.com/releases /var/www/vhosts/test_deploy.semaphoremobile.com/shared /var/www/vhosts/test_deploy.semaphoremobile.com/shared/system /var/www/vhosts/test_deploy.semaphoremobile.com/shared/log /var/www/vhosts/test_deploy.semaphoremobile.com/shared/pids'
+    command finished in 1738ms
+
