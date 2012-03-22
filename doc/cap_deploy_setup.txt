@@ -22,3 +22,4 @@ Password:
     [10.0.1.160] rvm_path=$HOME/.rvm/ $HOME/.rvm/bin/rvm-shell '1.9.2-p290@sample_blog' -c 'chmod g+w /var/www/vhosts/test_deploy.semaphoremobile.com /var/www/vhosts/test_deploy.semaphoremobile.com/releases /var/www/vhosts/test_deploy.semaphoremobile.com/shared /var/www/vhosts/test_deploy.semaphoremobile.com/shared/system /var/www/vhosts/test_deploy.semaphoremobile.com/shared/log /var/www/vhosts/test_deploy.semaphoremobile.com/shared/pids'
     command finished in 1738ms
 
+
