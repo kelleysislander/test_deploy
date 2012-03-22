@@ -1,99 +1,73 @@
-# cap deploy:setup
-
-set :stages, %w(beaglebone staging)
-set :default_stage, "beaglebone"
-
-require 'bundler/capistrano'
-
 require 'capistrano/ext/multistage'
+set :stages, %w(beaglebone)
+set :default_stage, "beaglebone"
+set :application, "test_deploy"
+set :user, "root"
+set :use_sudo, "false"
 
-puts "ENV['rvm_path']"
-puts "rvm_path => #{ENV['rvm_path']}"
-puts "END ENV['rvm_path']"
+default_run_options[:pty] = true
+set :application, 'test_deploy'
+set :app_uri,   'test_deploy.semaphoremobile.com'
+set :deploy_to, "/var/www/vhosts/#{app_uri}"
+set :gem_home, '/home/root/.rvm/gems/ruby-1.9.2-p290@test_deploy'
+set :gem_path, '/home/root/.rvm/gems/ruby-1.9.2-p290:/home/deploy/.rvm/gems/ruby-1.9.2-p290@global' # got these last 2 via "gem info" on the app server's app root
 
-puts "beg ENV['RAILS_ENV'] ="
-puts ENV['RAILS_ENV']
-puts "end ENV['RAIL_ENV'] ="
+set :repository, "git@github.com:kelleysislander/sample_blog.git"
+set :branch, "master"
+set :scm, :git
 
-$:.unshift(File.expand_path('./lib', ENV['rvm_path']))  # Add RVM's lib directory to the load path.
+set :scm_verbose, true
+set :git_enable_submodules, 1
+set :keep_releases, 5
+set :port, 22
+set :domain, "10.0.1.160"
 
-require "rvm/capistrano"                                # Load RVM's capistrano plugin.
+set :chmod755, "app config db lib public vendor script script/* public/*"
+set :ssh_options, { :forward_agent => true }
 
-set :rvm_ruby_string, '1.9.2-p290@test_deploy'               # Or whatever env you want it to run in.
+role :web, domain
+role :app, domain
+role :db,  domain, :primary => true
 
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'root')
-
-set :rvm_bin_path, "$HOME/.rvm/bin"
-set :rvm_type, :user
-
-=begin
-NOTE:  after "cap deploy:setup" you must ssh onto the server and manually create the 
-
-"/var/www/vhosts/sample_blog.semaphoremobile.com/shared/config/" dir 
-
-and then
-
-"chmod g+w /var/www/vhosts/sample_blog.semaphoremobile.com/shared/config"
-
-Then you can:
-
-"cap beaglebone deploy" 
-
-and after that is successful you can run these rake tasks:
-
-bundle exec padrino rake ar:create -e beaglebone
-bundle exec padrino rake ar:migrate -e beaglebone
-bundle exec padrino rake seed -e beaglebone
-bundle exec padrino start -e beaglebone
-
-=end
 namespace :deploy do
-
-  desc "Restarting mod_rails with restart.txt, capistrano runs this by default"
-  task :restart, :roles => :app, :except => { :no_release => true } do
-    puts "************ running => task :restart, :roles => :app, :except => { :no_release => true }"
-    run "touch #{current_path}/tmp/restart.txt"
-  end
-
-  # NOTE: you must manually create the "#{shared_path}/config/" dir since capistrano does not create a "config" dir for you
-  # unless you already ran "cap deploy:setup" which would have created the dir and put the database.yml into it
-  
-  desc 'moves the current .rvmrc into #{shared_path/config/.rvmrc and symlinks it'
-  namespace :rvmrc do
-    task :symlink, :except => { :no_release => true } do
-      puts "************ running: deploy.rb: symlinking .rvmrc: ln -nfs #{shared_path}/config/.rvmrc #{release_path}/config/.rvmrc"
-      run "mv -vf #{release_path}/.rvmrc #{shared_path}/config/.rvmrc"
-      puts "************ running: ln -nfs #{shared_path}/config/.rvmrc #{release_path}/.rvmrc"
-      # run "ln -nfs .rvmrc #{shared_path}/config/.rvmrc"
-      run "ln -nfs #{shared_path}/config/.rvmrc #{release_path}/.rvmrc"
+    desc "Restart Application"
+    task :restart, :roles => :app do
+      sudo "touch #{current_path}/tmp/restart.txt"
     end
+
+    desc "Make symlink for database.yml" 
+    task :symlink_dbyaml do
+      sudo "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml" 
+    end
+
+    desc "Create empty database.yml in shared path" 
+    task :create_dbyaml do
+      sudo "mkdir -p #{shared_path}/config" 
+      put '', "#{shared_path}/config/database.yml" 
+    end
+
+    desc "Make symlink for s3.yml" 
+    task :symlink_s3yaml do
+      sudo "ln -nfs #{shared_path}/config/s3.yml #{release_path}/config/s3.yml" 
+    end
+
+    desc "Create empty s3.yml in shared path" 
+    task :create_s3yaml do
+      sudo "mkdir -p #{shared_path}/config" 
+      put '', "#{shared_path}/config/s3.yml" 
+    end
+    
+    desc "Make symlink for restart.txt" 
+    task :symlink_restart do
+      sudo "ln -nfs #{shared_path}/system/restart.txt #{release_path}/tmp/restart.txt" 
+      sudo "touch #{current_path}/tmp/restart.txt"
+    end    
   end
-  
-  
-end # namespace :deploy do
 
-after "deploy:symlink",       "deploy:rvmrc:symlink"
+  # after 'deploy:setup', 'deploy:create_dbyaml'
+  # after 'deploy:update_code', 'deploy:symlink_dbyaml'
+  # after 'deploy:setup', 'deploy:create_s3yaml'
+  # after 'deploy:update_code', 'deploy:symlink_s3yaml'
+  # after 'deploy:update_code', 'deploy:symlink_restart' 
+  after 'deploy', 'deploy:cleanup'
 
-=begin
-can ssh to the box and run:
-
-  bundle exec padrino rake ar:create -e beaglebone
-  bundle exec padrino rake ar:migrate -e beaglebone
-  bundle exec padrino rake seed -e beaglebone
-  bundle exec padrino start -e beaglebone
-
-  bundle exec padrino rake ar:migrate -e production 
-once you are deployed
-=end
-
-# if you're still using the script/reaper helper you will need
-# these http://github.com/rails/irs_process_scripts
-
-# If you are using Passenger mod_rails uncomment this:
-# namespace :deploy do
-#   task :start do ; end
-#   task :stop do ; end
-#   task :restart, :roles => :app, :except => { :no_release => true } do
-#     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
-#   end
-# end
